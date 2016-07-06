@@ -323,10 +323,15 @@ public class Query2Resource {
             if(name == null || name.equals("")) {
                 name = SaikuProperties.webExportExcelName + "." + SaikuProperties.webExportExcelFormat;
             }
+            //If filename contains colon we only take last part i.e. public:reports:мега отчет.saiku -> мега отчет.saiku
+            //this is for opening saiku files from browsing in Pentaho
+            String [] split = name.split("\\:");
+            if (split != null && split.length > 0)
+            	name = split[split.length - 1];
             return Response.ok(doc, MediaType.APPLICATION_OCTET_STREAM).header(
                     "content-disposition",
-                    "attachment; filename = " + name).header(
-                    "content-length",doc.length).build();
+                    "attachment; filename = saiku.xls; filename*=UTF-8\'\'" + java.net.URLEncoder.encode(name, "UTF-8").replace('+', '_'))
+            		.header("content-length",doc.length).build();
         }
         catch (Exception e) {
             log.error("Cannot get excel for query (" + queryName + ")",e);
